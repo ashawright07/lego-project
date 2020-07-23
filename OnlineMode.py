@@ -6,7 +6,8 @@ global var_UID
 
 conn = pyodbc.connect(
     'Driver={SQL Server};'
-    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -112,10 +113,18 @@ def browse():
 
     elif choice.lower() == "sets":
         cursor = conn.cursor()
-        cursor.execute("Select name, quantity FROM brick_sets")
+        cursor.execute("SELECT a.quantity, a.name, b.price FROM brick_sets a "
+                       "INNER JOIN (SELECT brick_set_parts.set_id, SUM(bricks.price) as price FROM bricks "
+                       "INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num "
+                       "GROUP BY brick_set_parts.set_id) b "
+                       "ON a.set_id = b.set_id")
         for row in cursor:
+            print(row[0], row[1], row[2])
+
+        # cursor.execute("Select name, quantity FROM brick_sets")
+        # for row in cursor:
             # self note: add column names and get price from bricks table
-            print(row[0], row[1])
+            # print(row[0], row[1])
 
 
 def search():
@@ -147,11 +156,11 @@ def main_menu():
         emp_menu()
     elif choice == "2":
         login(conn)
-        newCustomer(conn)
     elif choice == "x":
         sys.exit()
 
 
+browse()
 main_menu()
 
 conn.close()
