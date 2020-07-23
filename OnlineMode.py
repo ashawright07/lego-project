@@ -7,7 +7,8 @@ def read(table_name):
     cursor = conn.cursor()
     cursor.execute("Select * FROM " + table_name)
     for row in cursor:
-        print(f'row = {row}')
+        print(row)
+        # print(f'row = {row}')
     print()
 
 
@@ -77,6 +78,29 @@ def newCustomer(conn):
                         VALUES (?,?,?,?,?,?,?,?)'''
     cursor.execute(insertData, [var_UID, f_name, l_name, email, phone, address, username, password])
 
+def browse():
+    choice = input("Would you like to browse by Bricks or by Sets?: ")
+    if choice.lower() == "bricks":
+        cursor = conn.cursor()
+        cursor.execute("Select * FROM bricks")
+        # cursor.execute("Select quantity, part_num, description, price FROM bricks")
+        for row in cursor:
+            # self note: add column names
+            print(row[1], row[0], row[2], row[3])
+
+    elif choice.lower() == "sets":
+        cursor = conn.cursor()
+        cursor.execute("Select name, quantity FROM brick_sets")
+        for row in cursor:
+            # self note: add column names and get price from bricks table
+            print(row[0], row[1])
+
+
+def search():
+    choice = input("Would you like to search by Bricks or by Sets?: ")
+
+
+
 conn = pyodbc.connect(
     'Driver={SQL Server};'
     'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
@@ -89,5 +113,5 @@ global var_UID
 # newCustomer(conn)
 read('login')
 # login(conn)
-
+browse()
 conn.close()
