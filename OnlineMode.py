@@ -17,8 +17,6 @@ cursor = conn.cursor()
 
 
 # function to read from specified table
-
-
 def read(table_name):
     # print("Read")
     cursor = conn.cursor()
@@ -29,14 +27,10 @@ def read(table_name):
     print()
 
 
-# read('login')
-
-
 def login(conn):
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
         newCustomer(conn)
-        read(conn)
     else:
         while True:
             username = input("Please enter your username: ")
@@ -48,16 +42,13 @@ def login(conn):
 
             if results:
                 for row in results:
-                    print("Welcome " + row[0])
-                    # global var_UID
-                    var_UID = int(row[0])
-                    print(var_UID)
+                    print("Welcome " + row[1] + "!")
+                    var_UID = int(row[0])  # global var_UID
+                    # print(var_UID)
                     return "exit"
             else:
                 print("Username and password not recognized")
 
-
-# login(conn)
 
 def newCustomer(conn):
     # get username and password from new customer
@@ -79,7 +70,7 @@ def newCustomer(conn):
         password = input("Please enter your password: ")
         password1 = input("Please reenter your password: ")
     insertData = '''INSERT INTO login(username,password) 
-                    VALUES (?,?,?)'''
+                    VALUES (?,?)'''
     cursor.execute(insertData, [username, password])
     conn.commit()
     # set id to be used to access the correct customer
@@ -99,6 +90,7 @@ def newCustomer(conn):
     insertData = ('INSERT INTO customerInfo(customer_id, f_name, l_name, email, phone, address, username, password) \n'
                   '                        VALUES (?,?,?,?,?,?,?,?)')
     cursor.execute(insertData, [var_UID, f_name, l_name, email, phone, address, username, password])
+    conn.commit()
 
 
 def browse():
@@ -107,9 +99,10 @@ def browse():
         cursor = conn.cursor()
         cursor.execute("Select * FROM bricks")
         # cursor.execute("Select quantity, part_num, description, price FROM bricks")
+        print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
         for row in cursor:
             # self note: add column names
-            print(row[1], row[0], row[2], row[3])
+            print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
 
     elif choice.lower() == "sets":
         cursor = conn.cursor()
@@ -118,20 +111,13 @@ def browse():
                        "INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num "
                        "GROUP BY brick_set_parts.set_id) b "
                        "ON a.set_id = b.set_id")
+        print("%-10s %-15s %s" % ("Quantity", "Name", "Price"))
         for row in cursor:
-            print(row[0], row[1], row[2])
-
-        # cursor.execute("Select name, quantity FROM brick_sets")
-        # for row in cursor:
-            # self note: add column names and get price from bricks table
-            # print(row[0], row[1])
+            print("%-10s %-15s %s" % (row[0], row[1], row[2]))
 
 
 def search():
     choice = input("Would you like to search by Bricks or by Sets?: ")
-
-
-# browse()
 
 
 def emp_menu():
@@ -142,7 +128,6 @@ def emp_menu():
     function = input("Function: ")
     if function == "x":
         main_menu()
-
 
 
 def main_menu():
@@ -160,7 +145,6 @@ def main_menu():
         sys.exit()
 
 
-browse()
 main_menu()
 
 conn.close()
