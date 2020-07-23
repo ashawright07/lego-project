@@ -6,7 +6,8 @@ global var_UID
 
 conn = pyodbc.connect(
     'Driver={SQL Server};'
-    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -16,8 +17,6 @@ cursor = conn.cursor()
 
 
 # function to read from specified table
-
-
 def read(table_name):
     # print("Read")
     cursor = conn.cursor()
@@ -52,7 +51,6 @@ def login(conn):
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
         newCustomer(conn)
-        read(conn)
     else:
         while True:
             username = input("Please enter your username: ")
@@ -67,13 +65,15 @@ def login(conn):
                     print("Welcome " + row[0])
                     # global var_UID
                     var_UID = (row[0])
+
+                    print("Welcome " + row[1] + "!")
+                    var_UID = int(row[0])  # global var_UID
+
                     # print(var_UID)
                     return "exit"
             else:
                 print("Username and password not recognized")
 
-
-# login(conn)
 
 def newCustomer(conn):
     # get username and password from new customer
@@ -116,6 +116,7 @@ def newCustomer(conn):
     insertData = ('INSERT INTO customerInfo(customer_id, f_name, l_name, email, phone, address, username, password) \n'
                   '                        VALUES (?,?,?,?,?,?,?,?)')
     cursor.execute(insertData, [var_UID, f_name, l_name, email, phone, address, username, password])
+    conn.commit()
 
 
 def browse():
@@ -124,16 +125,21 @@ def browse():
         cursor = conn.cursor()
         cursor.execute("Select * FROM bricks")
         # cursor.execute("Select quantity, part_num, description, price FROM bricks")
+        print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
         for row in cursor:
             # self note: add column names
-            print(row[1], row[0], row[2], row[3])
+            print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
 
     elif choice.lower() == "sets":
         cursor = conn.cursor()
-        cursor.execute("Select name, quantity FROM brick_sets")
+        cursor.execute("SELECT a.quantity, a.name, b.price FROM brick_sets a "
+                       "INNER JOIN (SELECT brick_set_parts.set_id, SUM(bricks.price) as price FROM bricks "
+                       "INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num "
+                       "GROUP BY brick_set_parts.set_id) b "
+                       "ON a.set_id = b.set_id")
+        print("%-10s %-15s %s" % ("Quantity", "Name", "Price"))
         for row in cursor:
-            # self note: add column names and get price from bricks table
-            print(row[0], row[1])
+            print("%-10s %-15s %s" % (row[0], row[1], row[2]))
 
 
 def search():
@@ -141,9 +147,6 @@ def search():
 
 
 # browse()
-
-
-
 
 
 def emp_menu():
