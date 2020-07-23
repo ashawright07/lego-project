@@ -122,6 +122,9 @@ def search():
     choice = input("Would you like to search by Bricks or by Sets?: ")
 
 
+# browse()
+
+
 def emp_menu():
     print("1. Sale")
     print("2. Manage")
@@ -147,7 +150,4 @@ def main_menu():
 
 main_menu()
 
-# newCustomer(conn)
-# login(conn)
-browse()
 conn.close()
