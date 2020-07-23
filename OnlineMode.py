@@ -131,6 +131,9 @@ def emp_menu():
     print("3. Profile")
     print("x. Exit")
     function = input("Function: ")
+    if function == "x":
+        main_menu()
+
 
 
 def main_menu():
@@ -141,9 +144,10 @@ def main_menu():
     choice = input("Application: ")
     print(choice)
     if choice == "1":
-        login(conn)
-    elif choice == "2":
         emp_menu()
+    elif choice == "2":
+        login(conn)
+        newCustomer(conn)
     elif choice == "x":
         sys.exit()
 
