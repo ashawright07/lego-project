@@ -1,7 +1,23 @@
+# import cursor as cursor
 import pyodbc
+import sys
+
+global var_UID
+
+conn = pyodbc.connect(
+    'Driver={SQL Server};'
+    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Database=LegoStore;'
+    'Trusted_Connection=yes;'
+
+)
+
+cursor = conn.cursor()
 
 
 # function to read from specified table
+
+
 def read(table_name):
     # print("Read")
     cursor = conn.cursor()
@@ -10,6 +26,9 @@ def read(table_name):
         print(row)
         # print(f'row = {row}')
     print()
+
+
+# read('login')
 
 
 def login(conn):
@@ -28,7 +47,7 @@ def login(conn):
 
             if results:
                 for row in results:
-                    print("Welcome " + row[1])
+                    print("Welcome " + row[0])
                     # global var_UID
                     var_UID = int(row[0])
                     print(var_UID)
@@ -36,6 +55,8 @@ def login(conn):
             else:
                 print("Username and password not recognized")
 
+
+# login(conn)
 
 def newCustomer(conn):
     # get username and password from new customer
@@ -74,9 +95,10 @@ def newCustomer(conn):
     phone = input('Please enter your phone number: ')
     address = input('Please enter your address: ')
     # still haven't gotten store_preference
-    insertData = '''INSERT INTO customerInfo(customer_id, f_name, l_name, email, phone, address, username, password) 
-                        VALUES (?,?,?,?,?,?,?,?)'''
+    insertData = ('INSERT INTO customerInfo(customer_id, f_name, l_name, email, phone, address, username, password) \n'
+                  '                        VALUES (?,?,?,?,?,?,?,?)')
     cursor.execute(insertData, [var_UID, f_name, l_name, email, phone, address, username, password])
+
 
 def browse():
     choice = input("Would you like to browse by Bricks or by Sets?: ")
@@ -100,18 +122,32 @@ def search():
     choice = input("Would you like to search by Bricks or by Sets?: ")
 
 
+def emp_menu():
+    print("1. Sale")
+    print("2. Manage")
+    print("3. Profile")
+    print("x. Exit")
+    function = input("Function: ")
 
-conn = pyodbc.connect(
-    'Driver={SQL Server};'
-    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
-    'Database=LegoStore;'
-    'Trusted_Connection=yes;'
-)
 
-global var_UID
+def main_menu():
+    print("---------- Application Menu ----------")
+    print("1.   Employee")
+    print("2.   Customer")
+    print("x.   Exit")
+    choice = input("Application: ")
+    print(choice)
+    if choice == "1":
+        login(conn)
+    elif choice == "2":
+        emp_menu()
+    elif choice == "x":
+        sys.exit()
+
+
+main_menu()
 
 # newCustomer(conn)
-read('login')
 # login(conn)
 browse()
 conn.close()
