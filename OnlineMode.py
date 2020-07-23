@@ -31,6 +31,23 @@ def read(table_name):
 # read('login')
 
 
+def emp_login():
+    while True:
+        username = input("username: ")
+        password = input("password: ")
+        cursor = conn.cursor()
+        find_employee = "SELECT * FROM employee_login WHERE username = ? AND password = ?"
+        cursor.execute(find_employee, [username, password])
+        results = cursor.fetchall()
+
+        if results:
+            for row in results:
+                print("Welcome " + row[0])
+                return "exit"
+        else:
+            print("Username and/or password not recognized")
+
+
 def login(conn):
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
@@ -49,8 +66,8 @@ def login(conn):
                 for row in results:
                     print("Welcome " + row[0])
                     # global var_UID
-                    var_UID = int(row[0])
-                    print(var_UID)
+                    var_UID = (row[0])
+                    # print(var_UID)
                     return "exit"
             else:
                 print("Username and password not recognized")
@@ -78,8 +95,9 @@ def newCustomer(conn):
         password = input("Please enter your password: ")
         password1 = input("Please reenter your password: ")
     insertData = '''INSERT INTO login(username,password) 
-                    VALUES (?,?,?)'''
+                    VALUES (?,?)'''
     cursor.execute(insertData, [username, password])
+
     conn.commit()
     # set id to be used to access the correct customer
     var_UID = int(conn.execute("SELECT @@IDENTITY as id").fetchone()[0])
@@ -125,7 +143,11 @@ def search():
 # browse()
 
 
+
+
+
 def emp_menu():
+    print("---------- Employee Menu ----------")
     print("1. Sale")
     print("2. Manage")
     print("3. Profile")
@@ -134,6 +156,15 @@ def emp_menu():
     if function == "x":
         main_menu()
 
+
+def manager_menu():
+    print("---------- Management Menu ----------")
+    print("1. Employee Management")
+    print("2. Product Management")
+    print("3. Store Management")
+    print("4. Inventory Management")
+    print("5. Reports")
+    print("x. Exit")
 
 
 def main_menu():
@@ -144,10 +175,11 @@ def main_menu():
     choice = input("Application: ")
     print(choice)
     if choice == "1":
+        emp_login()
         emp_menu()
     elif choice == "2":
         login(conn)
-        newCustomer(conn)
+
     elif choice == "x":
         sys.exit()
 
