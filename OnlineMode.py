@@ -6,8 +6,8 @@ global var_UID
 
 conn = pyodbc.connect(
     'Driver={SQL Server};'
-    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
-    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    # 'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -148,6 +148,23 @@ def search():
 
 # browse()
 
+def add_emp():
+
+    while True:
+        print("Who would you like to add? ")
+        name = input("Name: ")
+        cursor = conn.cursor()
+        findName = "SELECT * FROM employees WHERE name = ?"
+        cursor.execute(findName, [name])
+
+        if cursor.fetchall():
+            print("Name already exists. Please try again.")
+
+        insert_emp = '''INSERT INTO employees(name) 
+                        VALUES (?)'''
+        cursor.execute(insert_emp, [name])
+        conn.commit()
+
 
 def emp_menu():
     print("---------- Employee Menu ----------")
@@ -158,6 +175,8 @@ def emp_menu():
     function = input("Function: ")
     if function == "x":
         main_menu()
+    elif function == "2":
+        manager_menu()
 
 
 def manager_menu():
@@ -168,6 +187,26 @@ def manager_menu():
     print("4. Inventory Management")
     print("5. Reports")
     print("x. Exit")
+    choice = input()
+    if choice == "1":
+        emp_management()
+    elif choice == "x":
+        sys.exit()
+
+
+def emp_management():
+    print("L. List Employees")
+    print("S. Search Employees")
+    print("A. Add Employees")
+    print("x. Exit")
+
+    choice = input()
+    if choice == "L":
+        read('employees')
+    elif choice == "A":
+        add_emp()
+    elif choice == "x":
+        manager_menu()
 
 
 def main_menu():
