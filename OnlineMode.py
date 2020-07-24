@@ -127,7 +127,6 @@ def browse():
         # cursor.execute("Select quantity, part_num, description, price FROM bricks")
         print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
         for row in cursor:
-            # self note: add column names
             print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
 
     elif choice.lower() == "sets":
@@ -143,7 +142,24 @@ def browse():
 
 
 def search():
-    choice = input("Would you like to search by Bricks or by Sets?: ")
+    choice = input("Enter keyword to search: ")
+    cursor = conn.cursor()
+    cursor.execute("Select * FROM bricks Where part_num LIKE  '%" + choice +
+                   "%' OR description LIKE  '%" + choice + "%' ")
+    print("Brick Results")
+    print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
+    for row in cursor:
+        print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
+
+    cursor.execute("SELECT a.quantity, a.name, b.price FROM brick_sets a "
+                   "INNER JOIN (SELECT brick_set_parts.set_id, SUM(bricks.price) as price FROM bricks "
+                   "INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num "
+                   "GROUP BY brick_set_parts.set_id) b "
+                   "ON a.set_id = b.set_id WHERE a.name LIKE '%s%%' OR b.price LIKE '%s%%' " % (choice, choice))
+    print("\nBrick Set Results")
+    print("%-10s %-15s %s" % ("Quantity", "Name", "Price"))
+    for row in cursor:
+        print("%-10s %-15s %s" % (row[0], row[1], row[2]))
 
 
 # browse()
