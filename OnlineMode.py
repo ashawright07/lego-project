@@ -67,11 +67,11 @@ def login(conn):
 
             if results:
                 for row in results:
-                    print("Welcome " + row[1] + "!")
+                    print("Welcome " + row[0] + "!")
                     global var_UID
-                    var_UID = int(row[0])  # global var_UID
-                    print(var_UID)
-                    return "exit"
+                    var_UID = (row[0])  # global var_UID
+                    # print(var_UID)
+                    customer_menu()
             else:
                 print("Username and password not recognized")
 
@@ -219,9 +219,10 @@ def viewCart():
 
     print("Your Cart")
     print("%-15s %s" % ("Item", "Price"))
-    print("%-15s %s" % (*items,  str(*prices)))
+    print("%-15s %s" % (*items, str(*prices)))
 
     # add total
+
 
 # def deleteFromCart():
 
@@ -258,6 +259,31 @@ def emp_menu():
         main_menu()
     elif function == "2":
         manager_menu()
+
+
+def customer_menu():
+    print("---------- Customer Menu ----------")
+    print("1. Order Sets or Bricks")
+    print("2. Search Item (Set or Brick")
+    print("3. Customer Information")
+    print("4. Payment Information")
+    print("x. Exit")
+    selection = input("What would you like to do?: ")
+
+    if selection == "1":
+        print("You are trying to order")
+
+    elif selection == "2":
+        search()
+
+    elif selection == "3":
+        print("You are trying to see info")
+
+    elif selection == "4":
+        print("You are trying to see payment")
+
+    elif selection == "x":
+        sys.exit("Goodbye!")
 
 
 def manager_menu():
