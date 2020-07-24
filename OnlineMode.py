@@ -194,8 +194,8 @@ def addToCart():
     for row in results:
         # print(row[0])
         price = row[0]*quantity
-    # self note: decide how to get credit card
-    creditcard = 1234567890
+
+    creditcard = 0
     cart = numpy.append(cart, [[var_UID, quantity, item, price, order_date, creditcard]], axis=0)
 
 
@@ -213,15 +213,19 @@ def viewCart():
 
 
 def placeOrder():
+    global cart
     viewCart()
-    # self note: decide how to get credit card info
-    # creditcard = input("\nPlease enter your credit card number: ")
+    creditcard = input("\nPlease enter your credit card number: ")
     cursor = conn.cursor()
     insertData = """INSERT INTO orders (customer_id, quantity, item, price, order_date, creditcard)
                     VALUES (?,?,?,?,?,?)"""
     for i in cart:
-        cursor.execute(insertData, [i[0], i[1], i[2], i[3], i[4], i[5]])
+        cursor.execute(insertData, [i[0], i[1], i[2], i[3], i[4], creditcard])
     conn.commit()
+
+    # empty cart after placing order
+    cart = numpy.delete(cart, numpy.s_[0:10], 0)
+
     # read('orders')
 
 
@@ -236,11 +240,15 @@ def history():
     print()
 
 
+# think about log out function
+
+
 # login()
 # addToCart()
 # addToCart()
 # print(cart)
 # placeOrder()
+# print(cart)
 # history()
 # viewCart()
 
