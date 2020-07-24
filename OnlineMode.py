@@ -159,6 +159,7 @@ def add_emp():
 
         if cursor.fetchall():
             print("Name already exists. Please try again.")
+            emp_management()
 
         insert_emp = '''INSERT INTO employees(name) 
                         VALUES (?)'''
@@ -192,6 +193,10 @@ def manager_menu():
         emp_management()
     elif choice == "x":
         sys.exit()
+
+
+def store_management():
+    print("---------- Stores ----------")
 
 
 def emp_management():
