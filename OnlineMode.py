@@ -10,8 +10,8 @@ order_date = date.today()
 
 conn = pyodbc.connect(
     'Driver={SQL Server};'
-    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
-    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    # 'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -201,7 +201,7 @@ def addToCart():
     cursor.execute("SELECT price FROM bricks WHERE part_num = '%s' " % item)
     results = cursor.fetchall()
     for row in results:
-        price = row[0]*quantity
+        price = row[0] * quantity
         # print(price)
 
     cursor.execute("SELECT b.price FROM brick_sets a "
@@ -212,7 +212,7 @@ def addToCart():
     results = cursor.fetchall()
     for row in results:
         # print(row[0])
-        price = row[0]*quantity
+        price = row[0] * quantity
 
     creditcard = 0
     cart = numpy.append(cart, [[var_UID, quantity, item, price, order_date, creditcard]], axis=0)
@@ -220,15 +220,15 @@ def addToCart():
 
 def viewCart():
     print("Your Cart")
-<<<<<<< HEAD
+
     print("%-15s %s" % ("Item", "Price"))
-    print("%-15s %s" % (*items, str(*prices)))
+    # print("%-15s %s" % (*items, str(*prices)))
 
     # add total
 
 
 # def deleteFromCart():
-=======
+
     print("%-10s %-15s %s" % ("Quantity", "Item", "Price"))
     for i in cart:
         print("%-10s %-15s %s" % (i[1], i[2], i[3]))
@@ -238,7 +238,6 @@ def viewCart():
     for i in cart:
         total += i[3]
     print("Total = $" + str(total))
->>>>>>> origin/master
 
 
 # def placeOrder():
