@@ -1,13 +1,17 @@
 # import cursor as cursor
+import numpy
 import pyodbc
 import sys
+from datetime import date
 
-global var_UID
+# global var_UID
+cart = numpy.empty((0, 5), str)
+order_date = date.today()
 
 conn = pyodbc.connect(
     'Driver={SQL Server};'
-    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
-    # 'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -62,14 +66,10 @@ def login(conn):
 
             if results:
                 for row in results:
-                    print("Welcome " + row[0])
-                    # global var_UID
-                    var_UID = (row[0])
-
                     print("Welcome " + row[1] + "!")
+                    global var_UID
                     var_UID = int(row[0])  # global var_UID
-
-                    # print(var_UID)
+                    print(var_UID)
                     return "exit"
             else:
                 print("Username and password not recognized")
@@ -162,10 +162,73 @@ def search():
         print("%-10s %-15s %s" % (row[0], row[1], row[2]))
 
 
-# browse()
+def addToCart():
+    # find item
+    global cart
+    found = 0
+    while found == 0:
+        item = input("Enter the item you would like to add to your cart: ")
+
+        cursor = conn.cursor()
+        findItem = "SELECT * FROM bricks WHERE part_num = ?"
+        cursor.execute(findItem, [item])
+        results1 = cursor.fetchall()
+
+        findItem = "SELECT * FROM brick_sets WHERE name = ?"
+        cursor.execute(findItem, [item])
+        results2 = cursor.fetchall()
+
+        if results1:
+            for row in results1:
+                # print(row[0])
+                item = row[0]
+            found = 1
+        elif results2:
+            for row in results2:
+                # print(row[2])
+                item = row[2]
+            found = 1
+        else:
+            print("Item was not found")
+
+    # get price of item
+    cursor.execute("SELECT price FROM bricks WHERE part_num = '%s' " % item)
+    results = cursor.fetchall()
+    for row in results:
+        price = row[0]
+        # print(price)
+
+    cursor.execute("SELECT b.price FROM brick_sets a "
+                   "INNER JOIN (SELECT brick_set_parts.set_id, SUM(bricks.price) as price FROM bricks "
+                   "INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num "
+                   "GROUP BY brick_set_parts.set_id) b "
+                   "ON a.set_id = b.set_id WHERE a.name = '%s' " % item)
+    results = cursor.fetchall()
+    for row in results:
+        # print(row[0])
+        price = row[0]
+
+    creditcard = 0
+    cart = numpy.append(cart, [[var_UID, item, price, order_date, creditcard]], axis=0)
+
+
+def viewCart():
+    items = cart[:, 1]
+    prices = cart[:, 2]
+
+    print("Your Cart")
+    print("%-15s %s" % ("Item", "Price"))
+    print("%-15s %s" % (*items,  str(*prices)))
+
+    # add total
+
+# def deleteFromCart():
+
+
+# def placeOrder():
+
 
 def add_emp():
-
     while True:
         print("Who would you like to add? ")
         name = input("Name: ")
@@ -177,7 +240,7 @@ def add_emp():
             print("Name already exists. Please try again.")
             emp_management()
 
-        insert_emp = '''INSERT INTO employees(name) 
+        insert_emp = '''INSERT INTO employees(name)
                         VALUES (?)'''
         cursor.execute(insert_emp, [name])
         conn.commit()
@@ -247,6 +310,9 @@ def main_menu():
         sys.exit()
 
 
+# login(conn)
+# addToCart()
+# viewCart()
 main_menu()
 
 conn.close()
