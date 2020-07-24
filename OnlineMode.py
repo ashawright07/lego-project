@@ -5,7 +5,7 @@ import sys
 from datetime import date
 
 # global var_UID
-cart = numpy.empty((0, 5), str)
+cart = numpy.empty((0, 6), str)
 order_date = date.today()
 
 conn = pyodbc.connect(
@@ -51,7 +51,7 @@ def emp_login():
             print("Username and/or password not recognized")
 
 
-def login(conn):
+def login():
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
         newCustomer(conn)
@@ -75,7 +75,7 @@ def login(conn):
                 print("Username and password not recognized")
 
 
-def newCustomer(conn):
+def newCustomer():
     # get username and password from new customer
     found = 0
     while found == 0:
@@ -191,11 +191,16 @@ def addToCart():
         else:
             print("Item was not found")
 
+    # get quantity
+    quantity = int(input("How many " + item + "'s would you like to order: "))
+    if quantity <= 0:
+        return
+
     # get price of item
     cursor.execute("SELECT price FROM bricks WHERE part_num = '%s' " % item)
     results = cursor.fetchall()
     for row in results:
-        price = row[0]
+        price = row[0]*quantity
         # print(price)
 
     cursor.execute("SELECT b.price FROM brick_sets a "
@@ -206,23 +211,23 @@ def addToCart():
     results = cursor.fetchall()
     for row in results:
         # print(row[0])
-        price = row[0]
+        price = row[0]*quantity
 
     creditcard = 0
-    cart = numpy.append(cart, [[var_UID, item, price, order_date, creditcard]], axis=0)
+    cart = numpy.append(cart, [[var_UID, quantity, item, price, order_date, creditcard]], axis=0)
 
 
 def viewCart():
-    items = cart[:, 1]
-    prices = cart[:, 2]
-
     print("Your Cart")
-    print("%-15s %s" % ("Item", "Price"))
-    print("%-15s %s" % (*items,  str(*prices)))
+    print("%-10s %-15s %s" % ("Quantity", "Item", "Price"))
+    for i in cart:
+        print("%-10s %-15s %s" % (i[1], i[2], i[3]))
 
-    # add total
-
-# def deleteFromCart():
+    # get total
+    total = 0
+    for i in cart:
+        total += i[3]
+    print("Total = $" + str(total))
 
 
 # def placeOrder():
@@ -299,13 +304,14 @@ def main_menu():
         emp_login()
         emp_menu()
     elif choice == "2":
-        login(conn)
+        login()
 
     elif choice == "x":
         sys.exit()
 
 
-# login(conn)
+# login()
+# addToCart()
 # addToCart()
 # viewCart()
 main_menu()
