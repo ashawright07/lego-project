@@ -36,6 +36,7 @@ def read(table_name):
 
 def emp_login():
     while True:
+
         username = input("username: ")
         password = input("password: ")
         cursor = conn.cursor()
