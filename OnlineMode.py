@@ -41,7 +41,7 @@ def read(table_name):
 def login():
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
-        newCustomer(conn)
+        newCustomer()
     else:
         while True:
             username = input("Please enter your username: ")
@@ -57,7 +57,7 @@ def login():
                     global var_UID
 
                     # var_UID = int(row[0])  # global var_UID
-                    var_UID = int(row[0])  # global var_UID
+                    # var_UID = int(row[0])  # global var_UID
 
                     # print(var_UID)
                     return "exit"
@@ -118,7 +118,7 @@ def browse():
         # cursor.execute("Select quantity, part_num, description, price FROM bricks")
         print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
         for row in cursor:
-            print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
+            print("%-10s %-10s %-20s %s" % (row[0], row[1], row[2], row[3]))
 
     elif choice.lower() == "sets":
         cursor = conn.cursor()
@@ -172,7 +172,7 @@ def addToCart():
         if results1:
             for row in results1:
                 # print(row[0])
-                item = row[0]
+                item = row[1]
             found = 1
         elif results2:
             for row in results2:
@@ -183,7 +183,7 @@ def addToCart():
             print("Item was not found")
 
     # get quantity
-    quantity = int(input("How many " + item + "'s would you like to order: "))
+    quantity = int(input("How many " + str(item) + "'s would you like to order: "))
     if quantity <= 0:
         return
 
@@ -248,9 +248,7 @@ def history():
         print("%-10s %-15s %-10s %-20s %s" % (row[0], row[1], row[2], row[3], row[4]))
     print()
 
-
 # think about log out function
-
 
 
 # login()

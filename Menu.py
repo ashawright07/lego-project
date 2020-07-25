@@ -27,9 +27,17 @@ def customer_menu():
 
     if choice == "1":
         browse()
+        addToCart()
+        viewCart()
+        placeOrder()
     elif choice == "2":
         search()
+        addToCart()
+        viewCart()
+        placeOrder()
     # elif choice == "3":
+        # show_customer_info()
+        # viewCart()
 
 
 def manager_menu():
