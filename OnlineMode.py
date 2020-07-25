@@ -9,15 +9,13 @@ cart = numpy.empty((0, 6), str)
 order_date = date.today()
 
 conn = pyodbc.connect(
-<<<<<<< HEAD
+
     'Driver={SQL Server};'
     'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
     # Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
-=======
     'Driver={ODBC Driver 17 for SQL Server};'
-    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
     'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
->>>>>>> e023568e94fef53a7eff4bbb316c2fb821ac9197
+
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -57,11 +55,10 @@ def login():
                 for row in results:
                     print("Welcome " + row[1] + "!")
                     global var_UID
-<<<<<<< HEAD
+
                     # var_UID = int(row[0])  # global var_UID
-=======
                     var_UID = int(row[0])  # global var_UID
->>>>>>> e023568e94fef53a7eff4bbb316c2fb821ac9197
+
                     # print(var_UID)
                     return "exit"
 

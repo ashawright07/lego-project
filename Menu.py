@@ -44,10 +44,12 @@ def manager_menu():
     if choice == "1":
         emp_management()
     elif choice == "x":
-        sys.exit()
+        emp_menu()
+        # sys.exit()
 
 
 def emp_management():
+    # while True:
     print("L. List Employees")
     print("S. Search Employees")
     print("A. Add Employees")
@@ -55,16 +57,17 @@ def emp_management():
     print("x. Exit")
 
     choice = input()
-    if choice == "L":
+    if choice == "l":
         read('employees')
-    elif choice == "A" or "a":
-        add_emp()
-    elif choice == "R" or "r":
-        remove_emp()
-    elif choice == "x" or "X":
-        manager_menu()
 
-    # emp_management()
+    elif choice == "a":
+        add_emp()
+
+    elif choice == "r":
+        remove_emp()
+
+    elif choice == "x":
+        manager_menu()
 
 
 def main_menu():
@@ -77,6 +80,7 @@ def main_menu():
         if choice == "1":
             emp_login()
             emp_menu()
+
         elif choice == "2":
             login()
             customer_menu()

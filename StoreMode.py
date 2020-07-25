@@ -35,7 +35,7 @@ def add_emp():
 
     while emp_exists == 0:
         name = input("Which employee would you like to add?: ")
-        empID = input ("Please enter their employee ID: ")
+        empID = input("Please enter their employee ID: ")
         cursor = conn.cursor()
         findEmp = "SELECT * FROM employees WHERE name = ? AND employeeID = ?"
         cursor.execute(findEmp, [name, empID])
@@ -44,25 +44,32 @@ def add_emp():
             print("Employee does not exist. Please try again.")
         else:
             emp_exists = 1
-    insertEmp = '''INSERT INTO employees(name,employeeID) 
+            insertEmp = '''INSERT INTO employees(name,employeeID) 
                     VALUES (?,?)'''
-    cursor.execute(insertEmp, [name, empID])
+            cursor.execute(insertEmp, [name, empID])
 
-    conn.commit()
+            conn.commit()
+            break
 
 
 def remove_emp():
-    print("Who would you like to remove? ")
-    name = input("Name: ")
-    cursor = conn.cursor()
-    deleteName = "SELECT * FROM employees WHERE name = ?"
-    cursor.execute(deleteName, [name])
+    while True:
+        print("Who would you like to remove? ")
+        name = input("Name: ")
+        empID = input("ID: ")
+        cursor = conn.cursor()
+        deleteName = "SELECT * FROM employees WHERE name = ? AND employeeID = ?"
+        cursor.execute(deleteName, [name, empID])
 
-    if cursor.fetchall():
-        print("Name does not exist. Please try again.")
+        # record = cursor.fetchone()
+        # print(record)
 
-    else:
-        delete_emp = '''DELETE * FROM employees WHERE name = ?
-                    VALUES(?)'''
-        cursor.execute(delete_emp, [name])
+        # if cursor.fetchall():
+        #    print("Name does not exist. Please try again.")
+
+        # else:
+        delete_emp = ''' DELETE FROM employees WHERE name = ? AND employeeID = ?'''
+        cursor.execute(delete_emp, [name, empID])
         conn.commit()
+        print(name + " has been removed.")
+        break
