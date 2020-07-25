@@ -11,7 +11,7 @@ order_date = date.today()
 conn = pyodbc.connect(
 
     'Driver={SQL Server};'
-    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    #'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
     # Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Driver={ODBC Driver 17 for SQL Server};'
     'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
@@ -183,26 +183,44 @@ def addToCart():
             print("Item was not found")
 
     # get quantity
+<<<<<<< HEAD
     quantity = int(input("How many " + str(item) + "'s would you like to order: "))
     if quantity <= 0:
         return
+=======
+    found = 0
+    while found == 0:
+        quantity = int(input("How many " + item + "'s would you like to order: "))
+        if quantity <= 0:
+            print("Please enter an acceptable quantity")
+        else:
+            found = 1
+>>>>>>> d05346a161d5475524e6a12016d5946a81c7cf6a
 
     # get price of item
-    cursor.execute("SELECT price FROM bricks WHERE part_num = '%s' " % item)
+    cursor.execute("SELECT price, quantity FROM bricks WHERE part_num = '%s' " % item)
     results = cursor.fetchall()
     for row in results:
-        price = row[0] * quantity
-        # print(price)
+        if row[1] - quantity < 0:
+            print("There is not enough stock for " + item + "\n")
+            return
+        else:
+            price = row[0] * quantity
+            # print(price)
 
-    cursor.execute("SELECT b.price FROM brick_sets a "
+    cursor.execute("SELECT b.price, a.quantity FROM brick_sets a "
                    "INNER JOIN (SELECT brick_set_parts.set_id, SUM(bricks.price) as price FROM bricks "
                    "INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num "
                    "GROUP BY brick_set_parts.set_id) b "
                    "ON a.set_id = b.set_id WHERE a.name = '%s' " % item)
     results = cursor.fetchall()
     for row in results:
-        # print(row[0])
-        price = row[0] * quantity
+        if row[1] - quantity < 0:
+            print("There is not enough stock for " + item + "\n")
+            return
+        else:
+            price = row[0] * quantity
+            # print(price)
 
     creditcard = 0
     cart = numpy.append(cart, [[var_UID, quantity, item, price, order_date, creditcard]], axis=0)
@@ -250,14 +268,22 @@ def history():
 
 # think about log out function
 
+# deduct when they place an order
 
+<<<<<<< HEAD
 # login()
 # addToCart()
+=======
+
+
+login()
+addToCart()
+>>>>>>> d05346a161d5475524e6a12016d5946a81c7cf6a
 # addToCart()
 # print(cart)
 # placeOrder()
 # print(cart)
 # history()
-# viewCart()
+viewCart()
 
 # conn.close()
