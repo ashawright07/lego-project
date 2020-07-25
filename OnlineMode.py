@@ -1,17 +1,17 @@
 # import cursor as cursor
 import numpy
 import pyodbc
-import sys
 from datetime import date
 
 # global var_UID
+
 cart = numpy.empty((0, 6), str)
 order_date = date.today()
 
 conn = pyodbc.connect(
     'Driver={SQL Server};'
     'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
-    # 'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+    # Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -34,24 +34,6 @@ def read(table_name):
 # read('login')
 
 
-def emp_login():
-    while True:
-
-        username = input("username: ")
-        password = input("password: ")
-        cursor = conn.cursor()
-        find_employee = "SELECT * FROM employee_login WHERE username = ? AND password = ?"
-        cursor.execute(find_employee, [username, password])
-        results = cursor.fetchall()
-
-        if results:
-            for row in results:
-                print("Welcome " + row[0])
-                return "exit"
-        else:
-            print("Username and/or password not recognized")
-
-
 def login():
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
@@ -67,11 +49,12 @@ def login():
 
             if results:
                 for row in results:
-                    print("Welcome " + row[0] + "!")
+                    print("Welcome " + row[1] + "!")
                     global var_UID
-                    var_UID = (row[0])  # global var_UID
+                    # var_UID = int(row[0])  # global var_UID
                     # print(var_UID)
-                    customer_menu()
+                    return "exit"
+
             else:
                 print("Username and password not recognized")
 
@@ -220,15 +203,6 @@ def addToCart():
 
 def viewCart():
     print("Your Cart")
-
-    print("%-15s %s" % ("Item", "Price"))
-    # print("%-15s %s" % (*items, str(*prices)))
-
-    # add total
-
-
-# def deleteFromCart():
-
     print("%-10s %-15s %s" % ("Quantity", "Item", "Price"))
     for i in cart:
         print("%-10s %-15s %s" % (i[1], i[2], i[3]))
@@ -240,120 +214,22 @@ def viewCart():
     print("Total = $" + str(total))
 
 
-# def placeOrder():
+def placeOrder():
+    viewCart()
+    # creditcard = input("\nPlease enter your credit card number: ")
+    cursor = conn.cursor()
+    insertData = ('INSERT INTO orders(customer_id, quantity, item, price, order_date, creditcard) \n'
+                  '                        VALUES (?,?,?,?,?,?)')
+    cursor.executemany(insertData, cart)
+    conn.commit()
+    read('orders')
 
-
-def add_emp():
-    while True:
-        print("Who would you like to add? ")
-        name = input("Name: ")
-        cursor = conn.cursor()
-        findName = "SELECT * FROM employees WHERE name = ?"
-        cursor.execute(findName, [name])
-
-        if cursor.fetchall():
-            print("Name already exists. Please try again.")
-            emp_management()
-
-        insert_emp = '''INSERT INTO employees(name)
-                        VALUES (?)'''
-        cursor.execute(insert_emp, [name])
-        conn.commit()
-
-
-def emp_menu():
-    print("---------- Employee Menu ----------")
-    print("1. Sale")
-    print("2. Manage")
-    print("3. Profile")
-    print("x. Exit")
-    function = input("Function: ")
-    if function == "x":
-        main_menu()
-    elif function == "2":
-        manager_menu()
-
-
-def customer_menu():
-    print("---------- Customer Menu ----------")
-    print("1. Order Sets or Bricks")
-    print("2. Search Item (Set or Brick")
-    print("3. Customer Information")
-    print("4. Payment Information")
-    print("x. Exit")
-    selection = input("What would you like to do?: ")
-
-    if selection == "1":
-        print("You are trying to order")
-
-    elif selection == "2":
-        search()
-
-    elif selection == "3":
-        print("You are trying to see info")
-
-    elif selection == "4":
-        print("You are trying to see payment")
-
-    elif selection == "x":
-        sys.exit("Goodbye!")
-
-
-def manager_menu():
-    print("---------- Management Menu ----------")
-    print("1. Employee Management")
-    print("2. Product Management")
-    print("3. Store Management")
-    print("4. Inventory Management")
-    print("5. Reports")
-    print("x. Exit")
-    choice = input()
-    if choice == "1":
-        emp_management()
-    elif choice == "x":
-        sys.exit()
-
-
-def store_management():
-    print("---------- Stores ----------")
-
-
-def emp_management():
-    print("L. List Employees")
-    print("S. Search Employees")
-    print("A. Add Employees")
-    print("x. Exit")
-
-    choice = input()
-    if choice == "L":
-        read('employees')
-    elif choice == "A":
-        add_emp()
-    elif choice == "x":
-        manager_menu()
-
-
-def main_menu():
-    print("---------- Application Menu ----------")
-    print("1.   Employee")
-    print("2.   Customer")
-    print("x.   Exit")
-    choice = input("Application: ")
-    print(choice)
-    if choice == "1":
-        emp_login()
-        emp_menu()
-    elif choice == "2":
-        login()
-
-    elif choice == "x":
-        sys.exit()
 
 
 # login()
 # addToCart()
 # addToCart()
 # viewCart()
-main_menu()
+# main_menu()
 
-conn.close()
+# conn.close()
