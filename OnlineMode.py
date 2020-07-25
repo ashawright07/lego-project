@@ -9,9 +9,15 @@ cart = numpy.empty((0, 6), str)
 order_date = date.today()
 
 conn = pyodbc.connect(
+<<<<<<< HEAD
     'Driver={SQL Server};'
     'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
     # Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+=======
+    'Driver={ODBC Driver 17 for SQL Server};'
+    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+>>>>>>> e023568e94fef53a7eff4bbb316c2fb821ac9197
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
@@ -51,7 +57,11 @@ def login():
                 for row in results:
                     print("Welcome " + row[1] + "!")
                     global var_UID
+<<<<<<< HEAD
                     # var_UID = int(row[0])  # global var_UID
+=======
+                    var_UID = int(row[0])  # global var_UID
+>>>>>>> e023568e94fef53a7eff4bbb316c2fb821ac9197
                     # print(var_UID)
                     return "exit"
 
@@ -85,7 +95,7 @@ def newCustomer():
     conn.commit()
     # set id to be used to access the correct customer
     var_UID = int(conn.execute("SELECT @@IDENTITY as id").fetchone()[0])
-    print(var_UID)
+    # print(var_UID)
 
     print("Your new account was created.")
     print("Please fill out your customer profile.")
@@ -215,21 +225,44 @@ def viewCart():
 
 
 def placeOrder():
+    global cart
     viewCart()
-    # creditcard = input("\nPlease enter your credit card number: ")
+    creditcard = input("\nPlease enter your credit card number: ")
     cursor = conn.cursor()
-    insertData = ('INSERT INTO orders(customer_id, quantity, item, price, order_date, creditcard) \n'
-                  '                        VALUES (?,?,?,?,?,?)')
-    cursor.executemany(insertData, cart)
+    insertData = """INSERT INTO orders (customer_id, quantity, item, price, order_date, creditcard)
+                    VALUES (?,?,?,?,?,?)"""
+    for i in cart:
+        cursor.execute(insertData, [i[0], i[1], i[2], i[3], i[4], creditcard])
     conn.commit()
-    read('orders')
+
+    # empty cart after placing order
+    cart = numpy.delete(cart, numpy.s_[0:10], 0)
+
+    # read('orders')
+
+
+def history():
+    cursor = conn.cursor()
+    cursor.execute("Select quantity, item, price, order_date, creditcard FROM orders "
+                   "Where customer_id = ?", var_UID)
+    print("Previous Orders")
+    print("%-10s %-15s %-10s %-20s %s" % ("Quantity", "Item", "Price", "Date Ordered", "Credit Card"))
+    for row in cursor:
+        print("%-10s %-15s %-10s %-20s %s" % (row[0], row[1], row[2], row[3], row[4]))
+    print()
+
+
+# think about log out function
 
 
 
 # login()
 # addToCart()
 # addToCart()
+# print(cart)
+# placeOrder()
+# print(cart)
+# history()
 # viewCart()
-# main_menu()
 
 # conn.close()
