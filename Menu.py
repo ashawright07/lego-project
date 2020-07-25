@@ -49,25 +49,28 @@ def manager_menu():
 
 
 def emp_management():
-    # while True:
-    print("L. List Employees")
-    print("S. Search Employees")
-    print("A. Add Employees")
-    print("R. Remove Employee")
-    print("x. Exit")
+    while True:
+        print("L. List Employees")
+        print("S. Search Employees")
+        print("A. Add Employees")
+        print("R. Remove Employee")
+        print("x. Exit")
 
-    choice = input()
-    if choice == "l":
-        read('employees')
+        choice = input()
+        if choice == "l":
+            read('employees')
 
-    elif choice == "a":
-        add_emp()
+        elif choice == "s":
+            search_emp()
 
-    elif choice == "r":
-        remove_emp()
+        elif choice == "a":
+            add_emp()
 
-    elif choice == "x":
-        manager_menu()
+        elif choice == "r":
+            remove_emp()
+
+        elif choice == "x":
+            manager_menu()
 
 
 def main_menu():

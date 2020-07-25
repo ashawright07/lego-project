@@ -61,15 +61,28 @@ def remove_emp():
         deleteName = "SELECT * FROM employees WHERE name = ? AND employeeID = ?"
         cursor.execute(deleteName, [name, empID])
 
-        # record = cursor.fetchone()
-        # print(record)
-
-        # if cursor.fetchall():
-        #    print("Name does not exist. Please try again.")
-
-        # else:
         delete_emp = ''' DELETE FROM employees WHERE name = ? AND employeeID = ?'''
         cursor.execute(delete_emp, [name, empID])
         conn.commit()
         print(name + " has been removed.")
+        break
+
+
+def search_emp():
+    while True:
+
+        name = input("Who are you looking for?: ")
+        empID = input("ID: ")
+        cursor = conn.cursor()
+        emp_search = "SELECT * FROM employees WHERE name = ? AND employeeID = ?"
+        cursor.execute(emp_search, [name, empID])
+
+        results = cursor.fetchone()
+
+        if results:
+            print(results)
+        else:
+            print(name + " ", empID, " could not be found")
+
+        conn.commit()
         break
