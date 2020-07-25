@@ -1,11 +1,15 @@
+import calendar
+
 import pyodbc
 import random
 import datetime
-from datetime import date
+from datetime import datetime, timedelta
+from calendar import monthrange
 
 #from Menu import *
 list = []
-
+list1 = []
+lst = []
 
 
 conn = pyodbc.connect(
@@ -208,6 +212,161 @@ def Return_Order():
     cursor.execute(update_order, [order_number, item_id, updt_amount, order_number])
     conn.commit()
     print("Order returned Successfully.")
+
+def bricks_inv():
+    cursor = conn.cursor()
+    cursor.execute("SELECT part_num,description,quantity FROM bricks")
+    print("%-10s %-15s %s" % ("Part Number", "Part Description", "Quantity"))
+    for row in cursor:
+        print("%-10s %-15s %s" % (row[0], row[1], row[2]))
+
+def sets_inv():
+    cursor = conn.cursor()
+    cursor.execute("SELECT set_id,name,quantity FROM brick_sets")
+    print("%-10s %-15s %s" % ("Set Id", "Set Description", "Quantity"))
+    for row in cursor:
+        print("%-10s %-15s %s" % (row[0], row[1], row[2]))
+
+def order_inv():
+    items = int(input("Enter the number of items: "))
+    while True:
+        r = random.randint(1, 1000000)
+        if r not in list1:
+            list1.append(r)
+            order_number = r
+            break
+    order_date = datetime.date.today()
+    employee_id = emp_id
+    total_amount = 0
+    for i in range(items):
+
+        item_id = input("Enter Item Id: ")
+        item_description = input("Enter Item Description: ")
+        quantity = int(input("Enter Quantity: "))
+        item_type = input("Enter Item Type: ")
+        if (item_type.lower() == "brick"):
+            item_price = "SELECT price FROM bricks WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            item_price = "SELECT SUM(price) AS price FROM bricks INNER JOIN brick_set_parts ON bricks.part_num = brick_set_parts.part_num WHERE set_id = ?"
+        cursor.execute(item_price, [item_id])
+        res = cursor.fetchall()
+        a = res[0]
+        price = quantity * float(a[0])
+        insert_order = (
+            'INSERT INTO Inventory_Orders(order_id, order_date, emp_id, item_type, item_id, item_description, quantity, item_price,total_amount) \n'
+            '                        VALUES (?,?,?,?,?,?,?,?,?)')
+        cursor.execute(insert_order,
+                       [order_number, order_date, employee_id, item_type, item_id, item_description, quantity, price,total_amount])
+
+        total_amount = total_amount + price
+
+    update_order = "UPDATE Inventory_Orders SET total_amount = ? WHERE order_id = ?"
+    cursor.execute(update_order, [total_amount, order_number])
+    conn.commit()
+    print("Inventory ordered successfully.")
+
+def reorder_inv():
+    prev_order_number = int(input("Enter the order number to reorder: "))
+    while True:
+        r = random.randint(1, 1000000)
+        if r not in lst:
+            lst.append(r)
+            order_number = r
+            break
+    order_date = datetime.date.today()
+    employee_id = emp_id
+    #cursor = conn.cursor()
+    #item_id = "SELECT item_id FROM Inventory_Orders WHERE order_id = ?"
+    cursor.execute("SELECT item_id FROM Inventory_Orders WHERE order_id = ?", [prev_order_number])
+    for row in cursor.fetchall():
+        item_id = row[0]
+        details = "SELECT item_type,item_id,item_description,quantity,item_price,total_amount FROM Inventory_Orders WHERE order_id = ? AND item_id = ?"
+        cursor.execute(details,prev_order_number,item_id)
+        order = cursor.fetchall()
+        order_details = order[0]
+        item_type = order_details[0]
+        item_id = order_details[1]
+        item_description = order_details[2]
+        quantity = order_details[3]
+        item_price = order_details[4]
+        total_amount = order_details[5]
+
+
+        cursor.execute("INSERT INTO Inventory_Orders (order_id, order_date, emp_id, item_type, item_id, item_description, quantity, item_price,total_amount) VALUES (?,?,?,?,?,?,?,?,?)",order_number,order_date,employee_id,item_type, item_id, item_description, quantity, item_price,total_amount)
+        conn.commit()
+    print("Reordered Successfully.")
+
+
+
+def cancel_order():
+    order_number = int(input("Enter the order number to cancel: "))
+    cursor = conn.cursor()
+    cursor.execute("SELECT order_id,order_date,emp_id,item_type,item_id,item_description,quantity,item_price,total_amount FROM Inventory_Orders WHERE order_id = ?",order_number)
+    #res = cursor.fetchall()
+    for rw in cursor.fetchall():
+        insert_cancel_order = "INSERT INTO Cancelled_Inventory_Orders (order_id,order_date,emp_id,item_type,item_id,item_description,quantity,item_price,total_amount) VALUES(?,?,?,?,?,?,?,?,?)"
+        cursor.execute(insert_cancel_order, [rw[0],rw[1],rw[2],rw[3],rw[4],rw[5],rw[6],rw[7],rw[8]])
+
+    cancel_order = "DELETE FROM Inventory_Orders WHERE order_id = ?"
+    cursor.execute(cancel_order,[order_number])
+    conn.commit()
+    print("Order Cancelled Successfully.")
+
+def daily_report():
+    dt = datetime.now().date()
+    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy'),COUNT(*),SUM(price) FROM Store_Orders WHERE order_date = ? GROUP BY order_date",dt)
+    print("Daily Sales Report")
+    print("%-10s %-15s %s" % ("Date", "Total_Orders", "Total_Revenue"))
+    for row in cursor:
+        print("%-10s %-15s %s" % (row[0], row[1], row[2]))
+    print("Daily Employee Status")
+    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy'),employee_log.emp_id, emp_name,hours_worked,COUNT(*),SUM(price) FROM Store_Orders INNER JOIN employee_log ON Store_Orders.emp_id = employee_log.emp_id WHERE order_date = ? GROUP BY order_date,employee_log.emp_id,emp_name,hours_worked",dt)
+    print("%-10s %-15s %-15s %-10s %-10s %s" % ("Date", "Employee_Id","Employee_Name","Hours_Worked","Total_Orders", "Total_Revenue"))
+    for row in cursor:
+        print("%-10s %-15s %-15s %-12s %-12s %s" % (row[0], row[1], row[2],row[3],row[4],row[5]))
+
+def weekly_report():
+    today = datetime.now().date()
+    start = today - timedelta(days=today.weekday())
+    end = start + timedelta(days=6)
+    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy'),COUNT(*),SUM(DISTINCT(total_amount)) FROM Store_Orders WHERE order_date between ? AND ? GROUP BY order_date",str(start),str(end))
+    print("Weekly Sales Report")
+    print("%-10s %-15s %s" % ("Date", "Total_Orders", "Total_Revenue"))
+    for row in cursor:
+        print("%-10s %-15s %s" % (row[0], row[1], row[2]))
+    print("Weekly Employee Status")
+    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy') AS [Date] ,employee_log.emp_id, emp_name,hours_worked,COUNT(*),SUM(price) "
+                   "FROM Store_Orders INNER JOIN employee_log ON Store_Orders.emp_id = employee_log.emp_id AND Store_Orders.order_date = employee_log.worked_date "
+                   "WHERE order_date between ? AND ? GROUP BY order_date,employee_log.emp_id,emp_name,hours_worked",str(start),str(end))
+    print("%-10s %-15s %-15s %-10s %-10s %s" % ("Date", "Employee_Id","Employee_Name","Hours_Worked","Total_Orders", "Total_Revenue"))
+    for row in cursor:
+        print("%-10s %-15s %-15s %-12s %-12s %s" % (row[0], row[1], row[2],row[3],row[4],row[5]))
+
+
+def monthly_report():
+    num_days = calendar.monthrange(datetime.now().year, datetime.now().month)
+    given_date = datetime.today().date()
+    first_day = given_date.replace(day=1)
+    last_day = given_date.replace(day=monthrange(given_date.year, given_date.month)[1])
+    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy'),COUNT(*),SUM(DISTINCT(total_amount)) FROM Store_Orders WHERE order_date between ? AND ? GROUP BY order_date",str(first_day),str(last_day))
+    print("Monthly Sales Report")
+    print("%-10s %-15s %s" % ("Date", "Total_Orders", "Total_Revenue"))
+    for row in cursor:
+        print("%-10s %-15s %s" % (row[0], row[1], row[2]))
+    print("Monthly Employee Status")
+    cursor.execute(
+        "SELECT FORMAT(order_date,'MM-dd-yyyy') AS [Date] ,employee_log.emp_id, emp_name,hours_worked,COUNT(*),SUM(price) "
+        "FROM Store_Orders INNER JOIN employee_log ON Store_Orders.emp_id = employee_log.emp_id AND Store_Orders.order_date = employee_log.worked_date "
+        "WHERE order_date between ? AND ? GROUP BY order_date,employee_log.emp_id,emp_name,hours_worked", str(first_day),
+        str(last_day))
+    print("%-10s %-15s %-15s %-10s %-10s %s" % ("Date", "Employee_Id", "Employee_Name", "Hours_Worked", "Total_Orders", "Total_Revenue"))
+    for row in cursor:
+        print("%-10s %-15s %-15s %-12s %-12s %s" % (row[0], row[1], row[2], row[3], row[4], row[5]))
+
+
+
+
+
 
 
 
