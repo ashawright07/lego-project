@@ -2,6 +2,7 @@ from OnlineMode import *
 from StoreMode import *
 import sys
 
+
 def sale_menu():
     print("---------- Sale Menu ----------")
     print("1. Take Order")
@@ -46,6 +47,7 @@ def emp_menu_1():
     elif function == "x":
         main_menu()
 
+
 def emp_menu_0():
     print("---------- Employee Menu ----------")
     print("1. Sale")
@@ -55,6 +57,7 @@ def emp_menu_0():
         sale_menu()
     elif function == "x":
         main_menu()
+
 
 def inv_management():
     print("---------- Inventory Menu ----------")
@@ -85,23 +88,16 @@ def customer_menu():
     print("1. Browse Items")
     print("2. Search Items")
     print("3. Customer Information")
-    print("Payment Information")
+    print("4. Payment Information")
 
     choice = input("What would like to do?: ")
 
     if choice == "1":
         browse()
-        addToCart()
-        viewCart()
-        placeOrder()
     elif choice == "2":
         search()
-        addToCart()
-        viewCart()
-        placeOrder()
-    # elif choice == "3":
-        # show_customer_info()
-        # viewCart()
+    elif choice == "3":
+        read('customerInfo')
 
 def product_mngt():
     print("---------- Product Management ----------")
@@ -134,6 +130,7 @@ def product_mngt():
     elif choice == "x":
         manager_menu()
 
+
 def manager_menu():
     print("---------- Management Menu ----------")
     print("1. Employee Management")
@@ -165,6 +162,7 @@ def manager_menu():
     elif choice == "x":
         emp_menu_1()
 
+
 def reports():
     print("---------- Reports Menu ----------")
     print("1. Daily Report")
@@ -195,6 +193,7 @@ def reports():
             manager_menu()
     elif choice == "x":
         manager_menu()
+
 
 def emp_management():
     print("L. List Employees")

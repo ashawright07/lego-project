@@ -14,7 +14,7 @@ lst = []
 
 conn = pyodbc.connect(
     'Driver={ODBC Driver 17 for SQL Server};'
-    # 'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
     'Server=DESKTOP-Q55TSGL;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
@@ -421,25 +421,4 @@ def delivery_mngt():
         dt = row[1]
         dlvry_dt = dt + timedelta(days=7)
         print("%-10s %-15s %s" % (row[0], row[1], dlvry_dt))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -11,7 +11,7 @@ order_date = date.today()
 conn = pyodbc.connect(
 
     'Driver={SQL Server};'
-    #'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
+    'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
     # Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Driver={ODBC Driver 17 for SQL Server};'
     'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
@@ -38,7 +38,7 @@ def read(table_name):
 def login():
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
-        newCustomer()
+        newCustomer(conn)
     else:
         while True:
             username = input("Please enter your username: ")
@@ -52,15 +52,8 @@ def login():
                 for row in results:
                     print("Welcome " + row[1] + "!")
                     global var_UID
-<<<<<<< HEAD
-
                     # var_UID = int(row[0])  # global var_UID
-                    # var_UID = int(row[0])  # global var_UID
-
-=======
-                    var_UID = int(row[0])  # global var_UID
->>>>>>> eb675baba9fad2a6367d606a39c5e94d6d194b7d
-                    # print(var_UID)
+                    print(var_UID)
                     return "exit"
             else:
                 print("Username and password not recognized")
@@ -117,7 +110,7 @@ def browse():
         cursor.execute("Select * FROM bricks")
         print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
         for row in cursor:
-            print("%-10s %-10s %-20s %s" % (row[0], row[1], row[2], row[3]))
+            print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
 
     elif choice.lower() == "sets":
         cursor = conn.cursor()
@@ -171,7 +164,7 @@ def addToCart():
         if results1:
             for row in results1:
                 # print(row[0])
-                item = row[1]
+                item = row[0]
             found = 1
         elif results2:
             for row in results2:
@@ -182,11 +175,6 @@ def addToCart():
             print("Item was not found")
 
     # get quantity
-<<<<<<< HEAD
-    quantity = int(input("How many " + str(item) + "'s would you like to order: "))
-    if quantity <= 0:
-        return
-=======
     found = 0
     while found == 0:
         quantity = int(input("How many " + item + "'s would you like to order: "))
@@ -194,7 +182,6 @@ def addToCart():
             print("Please enter an acceptable quantity")
         else:
             found = 1
->>>>>>> d05346a161d5475524e6a12016d5946a81c7cf6a
 
     # get price of item
     cursor.execute("SELECT price, quantity FROM bricks WHERE part_num = '%s' " % item)
@@ -287,27 +274,3 @@ def history():
         print("%-10s %-15s %-10s %-20s %s" % (row[0], row[1], row[2], row[3], row[4]))
     print()
 
-<<<<<<< HEAD
-# think about log out function
-
-# deduct when they place an order
-
-<<<<<<< HEAD
-# login()
-# addToCart()
-=======
-
-
-login()
-addToCart()
->>>>>>> d05346a161d5475524e6a12016d5946a81c7cf6a
-# addToCart()
-# print(cart)
-# placeOrder()
-# print(cart)
-# history()
-viewCart()
-
-# conn.close()
-=======
->>>>>>> eb675baba9fad2a6367d606a39c5e94d6d194b7d
