@@ -24,7 +24,7 @@ conn = pyodbc.connect(
 cursor = conn.cursor()
 
 
-# function to read from specified table
+# function to read from specified table. used for testing purposes
 def read(table_name):
     # print("Read")
     cursor = conn.cursor()
@@ -33,9 +33,6 @@ def read(table_name):
         print(row)
         # print(f'row = {row}')
     print()
-
-
-# read('login')
 
 
 def login():
@@ -55,13 +52,9 @@ def login():
                 for row in results:
                     print("Welcome " + row[1] + "!")
                     global var_UID
-
-                    # var_UID = int(row[0])  # global var_UID
                     var_UID = int(row[0])  # global var_UID
-
                     # print(var_UID)
                     return "exit"
-
             else:
                 print("Username and password not recognized")
 
@@ -115,7 +108,6 @@ def browse():
     if choice.lower() == "bricks":
         cursor = conn.cursor()
         cursor.execute("Select * FROM bricks")
-        # cursor.execute("Select quantity, part_num, description, price FROM bricks")
         print("%-10s %-10s %-20s %s" % ("Quantity", "Part Num", "Description", "Price"))
         for row in cursor:
             print("%-10s %-10s %-20s %s" % (row[1], row[0], row[2], row[3]))
@@ -200,7 +192,6 @@ def addToCart():
             return
         else:
             price = row[0] * quantity
-            # print(price)
 
     cursor.execute("SELECT b.price, a.quantity FROM brick_sets a "
                    "INNER JOIN (SELECT brick_set_parts.set_id, SUM(bricks.price) as price FROM bricks "
@@ -214,10 +205,9 @@ def addToCart():
             return
         else:
             price = row[0] * quantity
-            # print(price)
 
-    creditcard = 0
-    cart = numpy.append(cart, [[var_UID, quantity, item, price, order_date, creditcard]], axis=0)
+    credit_card = 0
+    cart = numpy.append(cart, [[var_UID, quantity, item, price, order_date, credit_card]], axis=0)
 
 
 def viewCart():
@@ -236,44 +226,51 @@ def viewCart():
 def placeOrder():
     global cart
     viewCart()
-    creditcard = input("\nPlease enter your credit card number: ")
+    credit_card = input("\nPlease enter your credit card number: ")
     cursor = conn.cursor()
     insertData = """INSERT INTO orders (customer_id, quantity, item, price, order_date, creditcard)
                     VALUES (?,?,?,?,?,?)"""
     for i in cart:
-        cursor.execute(insertData, [i[0], i[1], i[2], i[3], i[4], creditcard])
+        cursor.execute(insertData, [i[0], i[1], i[2], i[3], i[4], credit_card])
+        deductInventory(i[1], i[2])
     conn.commit()
 
     # empty cart after placing order
     cart = numpy.delete(cart, numpy.s_[0:10], 0)
 
-    # read('orders')
+
+def deductInventory(quantity, item):
+    cursor = conn.cursor()
+    findItem = "SELECT * FROM bricks WHERE part_num = ?"
+    cursor.execute(findItem, [item])
+    results1 = cursor.fetchall()
+
+    findItem = "SELECT * FROM brick_sets WHERE name = ?"
+    cursor.execute(findItem, [item])
+    results2 = cursor.fetchall()
+
+    if results1:  # bricks
+        cursor.execute("UPDATE bricks SET quantity -= ? WHERE part_num = ?", (quantity, item))
+        conn.commit()
+    elif results2:  # sets
+        for row in results2:
+            cursor.execute("UPDATE brick_sets SET quantity -= ? WHERE set_id = ?", (quantity, row[0]))
+            conn.commit()
+            cursor.execute("SELECT bsp.part_num "
+                           "FROM brick_sets INNER JOIN brick_set_parts bsp ON brick_sets.set_id = bsp.set_id "
+                           "WHERE bsp.set_id = ?", row[0])
+            results3 = cursor.fetchall()
+            for part in results3:
+                cursor.execute("UPDATE bricks SET quantity -= 1 WHERE part_num = ?", part)
 
 
 def history():
     cursor = conn.cursor()
     cursor.execute("Select quantity, item, price, order_date, creditcard FROM orders "
-                   "Where customer_id = ?", var_UID)
+                   "Where customer_id = ? ORDER BY order_date desc ", var_UID)
     print("Previous Orders")
     print("%-10s %-15s %-10s %-20s %s" % ("Quantity", "Item", "Price", "Date Ordered", "Credit Card"))
     for row in cursor:
         print("%-10s %-15s %-10s %-20s %s" % (row[0], row[1], row[2], row[3], row[4]))
     print()
 
-
-# think about log out function
-
-# deduct when they place an order
-
-
-
-login()
-addToCart()
-# addToCart()
-# print(cart)
-# placeOrder()
-# print(cart)
-# history()
-viewCart()
-
-# conn.close()
