@@ -282,8 +282,8 @@ def history():
     print()
 
 
-login()
-showCustomer()
+# login()
+# showCustomer()
 # browse()
 # search()
 # history()
