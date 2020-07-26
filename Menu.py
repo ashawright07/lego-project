@@ -92,8 +92,12 @@ def customer_menu():
         print("---------- Customer Menu ----------")
         print("1. Browse Items")
         print("2. Search Items")
-        print("3. Customer Information")
-        print("4. Payment Information")
+        print("3. Add To Cart")
+        print("4. View Cart")
+        print("5. Place Order")
+        print("6. View Customer Profile")
+        print("7. View Order History")
+        print("x. Log Out")
 
         choice = input("What would like to do?: ")
 
@@ -102,8 +106,14 @@ def customer_menu():
         elif choice == "2":
             search()
         elif choice == "3":
-            showCustomer()
+            addToCart()
         elif choice == "4":
+            viewCart()
+        elif choice == "5":
+            placeOrder()
+        elif choice == "6":
+            showCustomer()
+        elif choice == "7":
             history()
         elif choice == "x":
             main_menu()
