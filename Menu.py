@@ -97,7 +97,7 @@ def customer_menu():
     elif choice == "2":
         search()
     elif choice == "3":
-        read('customerInfo')
+        showCustomer()
     elif choice == "4":
         history()
 
