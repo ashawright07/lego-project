@@ -52,7 +52,7 @@ def login():
                     print("Welcome " + row[1] + "!")
                     global var_UID
                     var_UID = int(row[0])  # global var_UID
-                    print(var_UID)
+                    # print(var_UID)
                     return "exit"
             else:
                 print("Username and password not recognized")
