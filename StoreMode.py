@@ -43,7 +43,7 @@ def emp_login():
             for row in results:
                 print("Welcome " + row[0])
                 return employee[2]
-                #return "exit"
+                # return "exit"
         else:
             print("Username and/or password not recognized")
 
