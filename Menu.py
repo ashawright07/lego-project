@@ -98,6 +98,10 @@ def customer_menu():
         search()
     elif choice == "3":
         read('customerInfo')
+    elif choice == "4":
+        history()
+
+
 
 def product_mngt():
     print("---------- Product Management ----------")
