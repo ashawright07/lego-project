@@ -3,8 +3,7 @@ import numpy
 import pyodbc
 from datetime import date
 
-# global var_UID
-
+global var_UID
 cart = numpy.empty((0, 6), str)
 order_date = date.today()
 
@@ -12,7 +11,7 @@ conn = pyodbc.connect(
 
     'Driver={SQL Server};'
     'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
-    # Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
+    # 'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Driver={ODBC Driver 17 for SQL Server};'
     'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
 
@@ -38,7 +37,7 @@ def read(table_name):
 def login():
     exist = input("Are you an existing customer? (y/n): ")
     if exist.lower() == "n":
-        newCustomer(conn)
+        newCustomer()
     else:
         while True:
             username = input("Please enter your username: ")
@@ -52,7 +51,7 @@ def login():
                 for row in results:
                     print("Welcome " + row[1] + "!")
                     global var_UID
-                    # var_UID = int(row[0])  # global var_UID
+                    var_UID = int(row[0])  # global var_UID
                     print(var_UID)
                     return "exit"
             else:
@@ -101,6 +100,14 @@ def newCustomer():
                   '                        VALUES (?,?,?,?,?,?,?,?)')
     cursor.execute(insertData, [var_UID, f_name, l_name, email, phone, address, username, password])
     conn.commit()
+
+
+def showCustomer():
+    cursor.execute("Select f_name, l_name, email, phone, address, username, password FROM customerInfo "
+                   "WHERE customer_id = ?", var_UID)
+    print("%-20s %-20s %-20s %-30s %-15s %s" % ("Name", "Email", "Phone", "Address", "Username", "Password"))
+    for row in cursor:
+        print("%-5s %-15s %-20s %-20s %-30s %-15s %s" % (row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
 
 def browse():
@@ -274,3 +281,12 @@ def history():
         print("%-10s %-15s %-10s %-20s %s" % (row[0], row[1], row[2], row[3], row[4]))
     print()
 
+
+login()
+showCustomer()
+# browse()
+# search()
+# history()
+# addToCart()
+# viewCart()
+# placeOrder()
