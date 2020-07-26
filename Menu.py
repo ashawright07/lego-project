@@ -60,21 +60,22 @@ def inv_management():
     print("---------- Inventory Menu ----------")
     print("1. Bricks Inventory")
     print("2. Sets Inventory")
-    print("3. Order Inventory")
-    print("4. Reorder Inventory")
-    print("5. Cancel Order")
     print("x. Exit")
     choice = input("Choice: ")
     if choice == "1":
         bricks_inv()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            inv_management()
+        else:
+            manager_menu()
     elif choice == "2":
         sets_inv()
-    elif choice == "3":
-        order_inv()
-    elif choice == "4":
-        reorder_inv()
-    elif choice == "5":
-        cancel_order()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            inv_management()
+        else:
+            manager_menu()
     elif choice == "x":
         manager_menu()
 
@@ -94,6 +95,36 @@ def customer_menu():
         search()
     # elif choice == "3":
 
+def product_mngt():
+    print("---------- Product Management ----------")
+    print("1. Order Inventory")
+    print("2. Reorder Inventory")
+    print("3. Cancel Order")
+    print("x. Exit")
+    choice = input("Choice: ")
+    if choice == "1":
+        order_inv()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            product_mngt()
+        else:
+            manager_menu()
+    elif choice == "2":
+        reorder_inv()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            product_mngt()
+        else:
+            manager_menu()
+    elif choice == "3":
+        cancel_order()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            product_mngt()
+        else:
+            manager_menu()
+    elif choice == "x":
+        manager_menu()
 
 def manager_menu():
     print("---------- Management Menu ----------")
@@ -102,16 +133,29 @@ def manager_menu():
     print("3. Store Management")
     print("4. Inventory Management")
     print("5. Reports")
+    print("6. Delivery Management")
     print("x. Exit")
     choice = input("Choice: ")
     if choice == "1":
         emp_management()
+    elif choice == "2":
+        product_mngt()
+    elif choice == "3":
+        print("TBD")
+        manager_menu()
     elif choice == "4":
         inv_management()
     elif choice == "5":
         reports()
+    elif choice == "6":
+        delivery_mngt()
+        a = input("Do you want to return back to manager menu(y/n)? ")
+        if a.lower() == "y":
+            manager_menu()
+        else:
+            emp_menu_1()
     elif choice == "x":
-        main_menu()
+        emp_menu_1()
 
 def reports():
     print("---------- Reports Menu ----------")
@@ -122,10 +166,25 @@ def reports():
     choice = input("Choice: ")
     if choice == "1":
         daily_report()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            reports()
+        else:
+            manager_menu()
     elif choice == "2":
         weekly_report()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            reports()
+        else:
+            manager_menu()
     elif choice == "3":
         monthly_report()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            reports()
+        else:
+            manager_menu()
     elif choice == "x":
         manager_menu()
 
@@ -137,18 +196,34 @@ def emp_management():
     print("x. Exit")
 
     choice = input("Choice: ")
-    if choice == "L":
-        read('employees')
-        emp_management()
-    elif choice == "S":
+    if choice.upper() == "L":
+        list_emp()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            emp_management()
+        else:
+            manager_menu()
+    elif choice.upper() == "S":
         srch_emp()
-        emp_management()
-    elif choice == "A":
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            emp_management()
+        else:
+            manager_menu()
+    elif choice.upper() == "A":
         add_emp()
-        emp_management()
-    elif choice == "D":
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            emp_management()
+        else:
+            manager_menu()
+    elif choice.upper() == "D":
         del_emp()
-        emp_management()
+        a = input("Do you want to continue(y/n)? ")
+        if a.lower() == "y":
+            emp_management()
+        else:
+            manager_menu()
     elif choice == "x":
         manager_menu()
 
@@ -159,7 +234,6 @@ def main_menu():
     print("2.   Customer")
     print("x.   Exit")
     choice = input("Application: ")
-    print(choice)
     if choice == "1":
         global var
         var = emp_login()

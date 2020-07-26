@@ -47,6 +47,13 @@ def emp_login():
         else:
             print("Username and/or password not recognized")
 
+def list_emp():
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM employees")
+    print("%-10s %-15s %-10s %s" % ("Employee_Id", "Employee_Name", "Access_Level","Store_Id"))
+    for row in cursor:
+        print("%-10s %-16s %-13s %s" % (row[0], row[1], row[2],row[3]))
+
 
 def add_emp():
     while True:
@@ -82,7 +89,7 @@ def del_emp():
             cursor.execute(delete_emp, [name])
             conn.commit()
 
-        print("Employee doesn't exists. Please try again.")
+        print("Employee has been removed.")
         break
 
 def srch_emp():
@@ -110,7 +117,7 @@ def Take_Order():
             list.append(r)
             order_number = r
             break
-    order_date = datetime.date.today()
+    order_date = datetime.now().date()
     employee_id = emp_id
     payment_type = input("Enter the payment type: ")
     if payment_type.lower() != "cash":
@@ -138,29 +145,30 @@ def Take_Order():
 
 
         total_amount = total_amount + price
+        if (item_type.lower() == "brick"):
+            item_quantity = "SELECT quantity FROM bricks WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            item_quantity = "SELECT quantity  FROM brick_sets WHERE set_id = ?"
+        cursor.execute(item_quantity, [item_id])
+        a = cursor.fetchall()
+        prev_quantity = a[0]
+        inc_quantity = abs(int(prev_quantity[0]) - quantity)
+        if (item_type.lower() == "brick"):
+            updated_quantity = "UPDATE  bricks SET quantity = ? WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            updated_quantity = "UPDATE  brick_sets SET quantity = ? WHERE set_id = ?"
+        cursor.execute(updated_quantity, [inc_quantity, item_id])
 
     update_order = "UPDATE Store_Orders SET total_amount = ? WHERE order_id = ?"
     cursor.execute(update_order,[total_amount,order_number])
-    if (item_type.lower() == "brick"):
-        item_quantity = "SELECT quantity FROM bricks WHERE part_num = ?"
-    elif (item_type.lower() == "set"):
-        item_quantity = "SELECT quantity  FROM brick_sets WHERE set_id = ?"
-    cursor.execute(item_quantity, [item_id])
-    a = cursor.fetchall()
-    prev_quantity = a[0]
-    inc_quantity = int(prev_quantity[0]) - quantity
-    if (item_type.lower() == "brick"):
-        updated_quantity = "UPDATE  bricks SET quantity = ? WHERE part_num = ?"
-    elif (item_type.lower() == "set"):
-        updated_quantity = "UPDATE  brick_sets SET quantity = ? WHERE set_id = ?"
-    cursor.execute(updated_quantity, [inc_quantity, item_id])
+
     conn.commit()
     print("Order Successful.")
 
 def Return_Order():
     items = int(input("Enter the number of items: "))
     order_number = int(input("Enter the order number: "))
-    return_date = datetime.date.today()
+    return_date = datetime.now().date()
     employee_id = emp_id
     payment_type = input("Enter the payment type: ")
     if payment_type.lower() != "cash":
@@ -194,7 +202,6 @@ def Return_Order():
             item_price = "SELECT price,total_amount FROM Store_Orders WHERE order_id = ? AND item_id = ?"
             cursor.execute(item_price, [order_number,item_id])
             res = cursor.fetchall()
-            print(res)
             a = res[0]
             b = a[0]
             y = a[1]
@@ -235,7 +242,7 @@ def order_inv():
             list1.append(r)
             order_number = r
             break
-    order_date = datetime.date.today()
+    order_date = datetime.now().date()
     employee_id = emp_id
     total_amount = 0
     for i in range(items):
@@ -259,9 +266,23 @@ def order_inv():
                        [order_number, order_date, employee_id, item_type, item_id, item_description, quantity, price,total_amount])
 
         total_amount = total_amount + price
+        if (item_type.lower() == "brick"):
+            item_quantity = "SELECT quantity FROM bricks WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            item_quantity = "SELECT quantity  FROM brick_sets WHERE set_id = ?"
+        cursor.execute(item_quantity, [item_id])
+        a = cursor.fetchall()
+        prev_quantity = a[0]
+        inc_quantity = int(prev_quantity[0]) + quantity
+        if (item_type.lower() == "brick"):
+            updated_quantity = "UPDATE  bricks SET quantity = ? WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            updated_quantity = "UPDATE  brick_sets SET quantity = ? WHERE set_id = ?"
+        cursor.execute(updated_quantity, [inc_quantity, item_id])
 
     update_order = "UPDATE Inventory_Orders SET total_amount = ? WHERE order_id = ?"
     cursor.execute(update_order, [total_amount, order_number])
+
     conn.commit()
     print("Inventory ordered successfully.")
 
@@ -273,7 +294,7 @@ def reorder_inv():
             lst.append(r)
             order_number = r
             break
-    order_date = datetime.date.today()
+    order_date = datetime.now().date()
     employee_id = emp_id
     #cursor = conn.cursor()
     #item_id = "SELECT item_id FROM Inventory_Orders WHERE order_id = ?"
@@ -293,7 +314,20 @@ def reorder_inv():
 
 
         cursor.execute("INSERT INTO Inventory_Orders (order_id, order_date, emp_id, item_type, item_id, item_description, quantity, item_price,total_amount) VALUES (?,?,?,?,?,?,?,?,?)",order_number,order_date,employee_id,item_type, item_id, item_description, quantity, item_price,total_amount)
-        conn.commit()
+        if (item_type.lower() == "brick"):
+            item_quantity = "SELECT quantity FROM bricks WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            item_quantity = "SELECT quantity  FROM brick_sets WHERE set_id = ?"
+        cursor.execute(item_quantity, [item_id])
+        a = cursor.fetchall()
+        prev_quantity = a[0]
+        inc_quantity = int(prev_quantity[0]) + quantity
+        if (item_type.lower() == "brick"):
+            updated_quantity = "UPDATE  bricks SET quantity = ? WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            updated_quantity = "UPDATE  brick_sets SET quantity = ? WHERE set_id = ?"
+        cursor.execute(updated_quantity, [inc_quantity, item_id])
+    conn.commit()
     print("Reordered Successfully.")
 
 
@@ -306,6 +340,22 @@ def cancel_order():
     for rw in cursor.fetchall():
         insert_cancel_order = "INSERT INTO Cancelled_Inventory_Orders (order_id,order_date,emp_id,item_type,item_id,item_description,quantity,item_price,total_amount) VALUES(?,?,?,?,?,?,?,?,?)"
         cursor.execute(insert_cancel_order, [rw[0],rw[1],rw[2],rw[3],rw[4],rw[5],rw[6],rw[7],rw[8]])
+        item_type = rw[3]
+        quantity = rw[6]
+        item_id = rw[4]
+        if (item_type.lower() == "brick"):
+            item_quantity = "SELECT quantity FROM bricks WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            item_quantity = "SELECT quantity  FROM brick_sets WHERE set_id = ?"
+        cursor.execute(item_quantity, [item_id])
+        a = cursor.fetchall()
+        prev_quantity = a[0]
+        inc_quantity = abs(quantity - int(prev_quantity[0]))
+        if (item_type.lower() == "brick"):
+            updated_quantity = "UPDATE  bricks SET quantity = ? WHERE part_num = ?"
+        elif (item_type.lower() == "set"):
+            updated_quantity = "UPDATE  brick_sets SET quantity = ? WHERE set_id = ?"
+        cursor.execute(updated_quantity, [inc_quantity, item_id])
 
     cancel_order = "DELETE FROM Inventory_Orders WHERE order_id = ?"
     cursor.execute(cancel_order,[order_number])
@@ -320,7 +370,7 @@ def daily_report():
     for row in cursor:
         print("%-10s %-15s %s" % (row[0], row[1], row[2]))
     print("Daily Employee Status")
-    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy'),employee_log.emp_id, emp_name,hours_worked,COUNT(*),SUM(price) FROM Store_Orders INNER JOIN employee_log ON Store_Orders.emp_id = employee_log.emp_id WHERE order_date = ? GROUP BY order_date,employee_log.emp_id,emp_name,hours_worked",dt)
+    cursor.execute("SELECT FORMAT(order_date,'MM-dd-yyyy'),employee_log.emp_id, emp_name,hours_worked,COUNT(*),SUM(price) FROM Store_Orders INNER JOIN employee_log ON Store_Orders.emp_id = employee_log.emp_id AND Store_Orders.order_date = employee_log.worked_date  WHERE order_date = ? GROUP BY order_date,employee_log.emp_id,emp_name,hours_worked",dt)
     print("%-10s %-15s %-15s %-10s %-10s %s" % ("Date", "Employee_Id","Employee_Name","Hours_Worked","Total_Orders", "Total_Revenue"))
     for row in cursor:
         print("%-10s %-15s %-15s %-12s %-12s %s" % (row[0], row[1], row[2],row[3],row[4],row[5]))
@@ -362,6 +412,17 @@ def monthly_report():
     print("%-10s %-15s %-15s %-10s %-10s %s" % ("Date", "Employee_Id", "Employee_Name", "Hours_Worked", "Total_Orders", "Total_Revenue"))
     for row in cursor:
         print("%-10s %-15s %-15s %-12s %-12s %s" % (row[0], row[1], row[2], row[3], row[4], row[5]))
+
+def delivery_mngt():
+    cursor.execute("SELECT order_id,order_date FROM Orders")
+    print("%-10s %-15s %s" % ("Order_Id", "Order_Date", "Delivery_Date"))
+    for row in cursor.fetchall():
+        ordr_id = row[0]
+        dt = row[1]
+        dlvry_dt = dt + timedelta(days=7)
+        print("%-10s %-15s %s" % (row[0], row[1], dlvry_dt))
+
+
 
 
 
