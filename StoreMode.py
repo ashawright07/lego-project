@@ -15,7 +15,8 @@ lst = []
 conn = pyodbc.connect(
     'Driver={ODBC Driver 17 for SQL Server};'
     'Server=NOTAMAC\\MYSERVER;'  # i am using a different server when testing db, but it works
-    'Server=DESKTOP-Q55TSGL;'
+    # 'Server=DESKTOP-Q55TSGL;'
+    # 'Server=DESKTOP-UMJ1B2A\MSSQLSERVER2020;'
     'Database=LegoStore;'
     'Trusted_Connection=yes;'
 
